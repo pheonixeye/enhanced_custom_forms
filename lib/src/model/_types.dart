@@ -1,0 +1,1 @@
+typedef ObjectId = String;
