@@ -27,9 +27,15 @@ class MongoDb extends API {
   }
 
   @override
-  Future<ProClinicForm> updateForm(ProClinicForm proClinicForm) {
-    // TODO: implement updateForm
-    throw UnimplementedError();
+  Future<void> updateForm(ProClinicForm proClinicForm) async {
+    await forms.updateOne(
+      where.eq("_id", proClinicForm.id),
+      {
+        r'$set': {
+          ...proClinicForm.toJson(),
+        }
+      },
+    );
   }
 
   @override

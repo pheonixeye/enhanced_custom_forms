@@ -1,5 +1,6 @@
 import 'package:enhanced_custom_forms/enhanced_custom_forms.dart';
 import 'package:example/api/api.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 
 class PxData extends ChangeNotifier {
@@ -11,6 +12,9 @@ class PxData extends ChangeNotifier {
 
   Future<void> _init() async {
     await api.init();
+    if (kDebugMode) {
+      print("PxData()._init()");
+    }
     await _fetchAllForms();
   }
 
@@ -21,10 +25,24 @@ class PxData extends ChangeNotifier {
     final result = await api.fetchAllForms();
     _forms = result;
     notifyListeners();
+    if (kDebugMode) {
+      print("PxData()._fetchAllForms()");
+    }
   }
 
   Future<void> createForm(ProClinicForm form) async {
     await api.createForm(form);
+    if (kDebugMode) {
+      print("PxData().createForm()");
+    }
+    await _fetchAllForms();
+  }
+
+  Future<void> updateForm(ProClinicForm form) async {
+    await api.updateForm(form);
+    if (kDebugMode) {
+      print("PxData().updateForm()");
+    }
     await _fetchAllForms();
   }
 }

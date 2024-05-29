@@ -1,6 +1,8 @@
 import 'package:enhanced_custom_forms/enhanced_custom_forms.dart' show Consumer;
 import 'package:example/pages/homepage/widgets/create_form_dialog.dart';
+import 'package:example/pages/homepage/widgets/form_tile.dart';
 import 'package:example/providers/data_provider.dart';
+import 'package:example/widgets/central_loading.dart';
 import 'package:flutter/material.dart';
 
 class MyHomePage extends StatelessWidget {
@@ -32,23 +34,7 @@ class MyHomePage extends StatelessWidget {
         child: Consumer<PxData>(
           builder: (context, d, _) {
             while (d.forms == null) {
-              return const Center(
-                child: Card.outlined(
-                  elevation: 6,
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text("Loading..."),
-                        SizedBox(height: 25),
-                        CircularProgressIndicator(),
-                      ],
-                    ),
-                  ),
-                ),
-              );
+              return const CentralLoading();
             }
             while (d.forms!.isEmpty) {
               return const Center(
@@ -70,9 +56,10 @@ class MyHomePage extends StatelessWidget {
             return ListView.builder(
               itemCount: d.forms?.length,
               itemBuilder: (context, index) {
-                final _form = d.forms![index];
-                return ListTile(
-                  title: Text(_form.titleEn),
+                final form = d.forms![index];
+                return FormTile(
+                  form: form,
+                  index: index,
                 );
               },
             );
