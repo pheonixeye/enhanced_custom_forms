@@ -11,11 +11,24 @@ class PxFormEditor extends ChangeNotifier {
   ProClinicForm? _form;
   ProClinicForm? get form => _form;
 
+  final List<FormDataElement> _elements = [];
+  List<FormDataElement> get elements => _elements;
+
   void selectForm(ProClinicForm? value) {
     _form = value;
     notifyListeners();
   }
 
-  Rect? _rect;
-  Rect? get rect => _rect;
+  void addDataElement(FormDataElement element) {
+    _elements.add(element);
+    notifyListeners();
+  }
+
+  void updateDataElement(FormDataElement element) {
+    FormDataElement _originalElement =
+        _elements.firstWhere((x) => x.id == element.id);
+    _elements.remove(_originalElement);
+    _elements.add(element);
+    notifyListeners();
+  }
 }

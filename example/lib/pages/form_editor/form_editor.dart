@@ -1,5 +1,5 @@
 import 'package:enhanced_custom_forms/enhanced_custom_forms.dart'
-    show Consumer, FormElement;
+    show Consumer, FormElement, FormDataElement, ObjectId;
 import 'package:example/extensions/widget_on_form_element.dart';
 import 'package:example/providers/form_editor.dart';
 import 'package:example/widgets/central_loading.dart';
@@ -46,6 +46,7 @@ class FormEditorPage extends StatelessWidget {
                                 ],
                               ),
                               child: ListView.builder(
+                                cacheExtent: 5000,
                                 itemBuilder: (context, index) {
                                   return Row(
                                     children: [
@@ -61,17 +62,7 @@ class FormEditorPage extends StatelessWidget {
                                                 border: Border.all(),
                                                 color: Colors.white70,
                                               ),
-                                              child: DragTarget<Widget>(
-                                                builder: (context,
-                                                    candidateData,
-                                                    rejectedData) {
-                                                  return const SizedBox(
-                                                      height: 70);
-                                                },
-                                                onAcceptWithDetails: (details) {
-                                                  details.data;
-                                                },
-                                              ),
+                                              child: const SizedBox(height: 70),
                                             ),
                                           ),
                                         );
@@ -82,6 +73,22 @@ class FormEditorPage extends StatelessWidget {
                               ),
                             ),
                           ),
+                          ...editor.elements.map((x) {
+                            return Positioned(
+                              width: x.spanX,
+                              height: x.spanY,
+                              top: x.startX,
+                              left: x.startY,
+                              child: x.formElement.buildElement(
+                                onDragEnd: (details) {
+                                  editor.updateDataElement(x.copyWith(
+                                    startX: details.offset.dx,
+                                    startY: details.offset.dy,
+                                  ));
+                                },
+                              ),
+                            );
+                          }),
                         ],
                       );
                     },
@@ -106,7 +113,22 @@ class FormEditorPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       ...FormElement.values.map((e) {
-                        return e.buildElement();
+                        return e.buildElement(
+                          onDragEnd: (details) {
+                            final formElement = FormDataElement(
+                              id: ObjectId(),
+                              title: e.toString(),
+                              formElement: e,
+                              required: false,
+                              startX: details.offset.dx,
+                              startY: details.offset.dy,
+                              spanX: 250,
+                              spanY: 70,
+                              options: const [],
+                            );
+                            editor.addDataElement(formElement);
+                          },
+                        );
                       }),
                     ],
                   ),
