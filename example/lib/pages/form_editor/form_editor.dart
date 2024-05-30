@@ -1,8 +1,9 @@
-import 'package:enhanced_custom_forms/enhanced_custom_forms.dart' show Consumer;
+import 'package:enhanced_custom_forms/enhanced_custom_forms.dart'
+    show Consumer, FormElement;
+import 'package:example/extensions/widget_on_form_element.dart';
 import 'package:example/providers/form_editor.dart';
 import 'package:example/widgets/central_loading.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_box_transform/flutter_box_transform.dart';
 
 class FormEditorPage extends StatelessWidget {
   const FormEditorPage({super.key});
@@ -24,35 +25,66 @@ class FormEditorPage extends StatelessWidget {
                 flex: 4,
                 child: Card.outlined(
                   elevation: 6,
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Stack(
+                  child: LayoutBuilder(
+                    builder: (context, constrains) {
+                      final width = constrains.maxWidth;
+                      final height = constrains.maxHeight;
+
+                      return Stack(
                         fit: StackFit.expand,
+                        alignment: Alignment.center,
                         children: [
-                          TransformableBox(
-                            rect: editor.rect,
-                            onResizeUpdate: (result, event) async {
-                              //TODO: handle correctly
-                              editor.setRect(result.rect);
-                              await Future.delayed(const Duration(seconds: 1));
-                              await editor.updateFormDimensions();
-                            },
-                            contentBuilder: (context, rect, flip) {
-                              return DecoratedBox(
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                  ),
-                                  color: Colors.white,
-                                ),
-                              );
-                            },
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              width: width,
+                              height: height,
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(),
+                                ],
+                              ),
+                              child: ListView.builder(
+                                itemBuilder: (context, index) {
+                                  return Row(
+                                    children: [
+                                      ...List.generate(
+                                          editor.form!.formLayout.columns,
+                                          (i) => i).map((e) {
+                                        return Expanded(
+                                          flex: 1,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(1.0),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                border: Border.all(),
+                                                color: Colors.white70,
+                                              ),
+                                              child: DragTarget<Widget>(
+                                                builder: (context,
+                                                    candidateData,
+                                                    rejectedData) {
+                                                  return const SizedBox(
+                                                      height: 70);
+                                                },
+                                                onAcceptWithDetails: (details) {
+                                                  details.data;
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
                           ),
                         ],
-                      ),
-                    ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -61,8 +93,21 @@ class FormEditorPage extends StatelessWidget {
                 child: Card.outlined(
                   elevation: 6,
                   child: ListView(
+                    padding: const EdgeInsets.all(8.0),
                     children: [
-                      Text(editor.form!.titleEn),
+                      const SizedBox(height: 10),
+                      Text(
+                        editor.form!.titleEn.toUpperCase(),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      ...FormElement.values.map((e) {
+                        return e.buildElement();
+                      }),
                     ],
                   ),
                 ),

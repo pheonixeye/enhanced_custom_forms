@@ -37,6 +37,7 @@ class FormTile extends StatelessWidget {
             ),
           ),
           subtitle: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: Text.rich(
@@ -50,9 +51,9 @@ class FormTile extends StatelessWidget {
                           text:
                               '\nAr: ${(form.descriptionAr == null || form.descriptionAr!.isEmpty) ? '-.-.-.-.' : '${form.descriptionAr}'}'),
                       const TextSpan(text: "\n--------------------"),
-                      const TextSpan(text: "\nDimensions : "),
-                      TextSpan(text: "\n${form.length}L * ${form.width}W"),
-                      const TextSpan(text: "\n--------------------"),
+                      // const TextSpan(text: "\nDimensions : "),
+                      // TextSpan(text: "\n${form.length}L * ${form.width}W"),
+                      // const TextSpan(text: "\n--------------------"),
                     ],
                   ),
                 ),
@@ -64,7 +65,7 @@ class FormTile extends StatelessWidget {
                       TextSpan(
                         text: "Layout : ",
                         children: [
-                          TextSpan(text: "\n ${form.formLayout.toString()}")
+                          TextSpan(text: "\n${form.formLayout.toString()}")
                         ],
                       ),
                     ),
