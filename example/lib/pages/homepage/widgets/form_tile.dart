@@ -1,5 +1,6 @@
 import 'package:enhanced_custom_forms/enhanced_custom_forms.dart';
 import 'package:example/pages/form_editor/form_editor.dart';
+import 'package:example/providers/data_provider.dart';
 import 'package:example/providers/form_editor.dart';
 import 'package:flutter/material.dart';
 
@@ -78,6 +79,15 @@ class FormTile extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+          trailing: FloatingActionButton(
+            heroTag: form.id,
+            onPressed: () async {
+              if (context.mounted) {
+                await context.read<PxData>().deleteForm(form);
+              }
+            },
+            child: const Icon(Icons.delete_forever),
           ),
         ),
       ),

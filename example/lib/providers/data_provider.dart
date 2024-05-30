@@ -45,4 +45,12 @@ class PxData extends ChangeNotifier {
     }
     await _fetchAllForms();
   }
+
+  Future<void> deleteForm(ProClinicForm form) async {
+    await api.deleteForm(form);
+    if (kDebugMode) {
+      print("PxData().deleteForm()");
+    }
+    await _fetchAllForms();
+  }
 }

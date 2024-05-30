@@ -1,60 +1,92 @@
-import 'package:enhanced_custom_forms/enhanced_custom_forms.dart';
+import 'package:enhanced_custom_forms/enhanced_custom_forms.dart'
+    show FormElement;
 import 'package:flutter/material.dart';
 
 extension WidgetOnFormElement on FormElement {
+  Widget get element => switch (this) {
+        FormElement.textfield => Card.outlined(
+            elevation: 6,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                expands: true,
+                enabled: false,
+                maxLines: null,
+                minLines: null,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: toString(),
+                ),
+              ),
+            ),
+          ),
+        FormElement.checkbox => Card.outlined(
+            elevation: 6,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CheckboxListTile(
+                title: Text(toString()),
+                onChanged: null,
+                value: true,
+              ),
+            ),
+          ),
+        FormElement.radio => Card.outlined(
+            elevation: 6,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: RadioListTile(
+                title: Text(toString()),
+                onChanged: null,
+                groupValue: null,
+                value: true,
+              ),
+            ),
+          ),
+        FormElement.dropdown => Card.outlined(
+            elevation: 6,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: DropdownButtonFormField(
+                items: const [],
+                onChanged: null,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: toString(),
+                ),
+              ),
+            ),
+          ),
+        FormElement.image => const Card.outlined(
+            elevation: 6,
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: CircleAvatar(
+                child: Icon(
+                  Icons.image,
+                  size: 42,
+                ),
+              ),
+            ),
+          ),
+        FormElement.text => const Card.outlined(
+            elevation: 6,
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Center(
+                child: Text(
+                  "Text",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      };
   Widget buildElement({void Function(DraggableDetails)? onDragEnd}) {
-    final Widget element = switch (this) {
-      FormElement.textfield => Card.outlined(
-          elevation: 6,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextFormField(
-              enabled: false,
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelText: toString(),
-              ),
-            ),
-          ),
-        ),
-      FormElement.checkbox => Card.outlined(
-          elevation: 6,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CheckboxListTile(
-              title: Text(toString()),
-              onChanged: null,
-              value: true,
-            ),
-          ),
-        ),
-      FormElement.radio => Card.outlined(
-          elevation: 6,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: RadioListTile(
-              title: Text(toString()),
-              onChanged: null,
-              groupValue: null,
-              value: true,
-            ),
-          ),
-        ),
-      FormElement.dropdown => Card.outlined(
-          elevation: 6,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: DropdownButtonFormField(
-              items: const [],
-              onChanged: null,
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelText: toString(),
-              ),
-            ),
-          ),
-        ),
-    };
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Draggable<Widget>(
@@ -65,7 +97,10 @@ extension WidgetOnFormElement on FormElement {
           child: element,
         ),
         onDragEnd: onDragEnd,
-        child: element,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 70),
+          child: element,
+        ),
       ),
     );
   }
