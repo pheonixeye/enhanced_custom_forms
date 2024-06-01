@@ -3,8 +3,10 @@ import 'package:example/constants/data_source.dart';
 import 'package:example/pages/homepage/homepage.dart';
 import 'package:example/providers/_main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const AppProvider());
 }
 
@@ -33,6 +35,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+      builder: EasyLoading.init(),
       home: const MyHomePage(title: 'Enhanced Custom Forms Maker'),
     );
   }

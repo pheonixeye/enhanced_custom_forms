@@ -3,7 +3,7 @@ import 'package:enhanced_custom_forms/enhanced_custom_forms.dart'
 import 'package:flutter/material.dart';
 
 extension WidgetOnFormElement on FormElement {
-  Widget get element => switch (this) {
+  Widget get selectionElement => switch (this) {
         FormElement.textfield => Card.outlined(
             elevation: 6,
             child: Padding(
@@ -90,16 +90,16 @@ extension WidgetOnFormElement on FormElement {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Draggable<Widget>(
-        data: element,
+        data: selectionElement,
         feedback: SizedBox(
           height: 70,
           width: 300,
-          child: element,
+          child: selectionElement,
         ),
         onDragEnd: onDragEnd,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxHeight: 70),
-          child: element,
+          child: selectionElement,
         ),
       ),
     );

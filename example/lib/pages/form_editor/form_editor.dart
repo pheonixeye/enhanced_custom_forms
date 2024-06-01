@@ -1,11 +1,13 @@
 import 'package:enhanced_custom_forms/enhanced_custom_forms.dart'
     show Consumer, FormElement, FormDataElement, FormLayout;
 import 'package:example/extensions/widget_on_form_element.dart';
+import 'package:example/pages/form_editor/widgets/editable_form_element.dart';
 import 'package:example/providers/form_editor.dart';
 import 'package:example/widgets/central_loading.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_box_transform/flutter_box_transform.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class FormEditorPage extends StatelessWidget {
   const FormEditorPage({super.key});
@@ -91,7 +93,7 @@ class FormEditorPage extends StatelessWidget {
                                 allowContentFlipping: false,
                                 allowFlippingWhileResizing: false,
                                 contentBuilder: (context, rect, flip) {
-                                  return x.formElement.element;
+                                  return EditableFormElement(data: x);
                                 },
                                 onResizeUpdate: (result, event) {
                                   final update = x.copyWith(
@@ -213,12 +215,24 @@ class FormEditorPage extends StatelessWidget {
                           ...FormElement.values.map((e) {
                             return e.buildElement(
                               onDragEnd: (details) {
-                                print("menuC : $menuW * $menuH");
-                                //TODO
-                                print(
-                                    "details Offset : ${details.offset.dx} * ${details.offset.dy}");
+                                final screenW =
+                                    MediaQuery.sizeOf(context).width;
+                                final screenH =
+                                    MediaQuery.sizeOf(context).height;
+                                final editorW = screenW - menuW;
 
-                                if (details.offset.dx > menuW) {
+                                final Rect rect =
+                                    Rect.fromLTWH(0, 0, editorW - 100, screenH);
+                                if (kDebugMode) {
+                                  print("menuC : $menuW * $menuH");
+                                  print('editorW : $editorW');
+                                  print('screenW : $screenW');
+                                  print(
+                                      "details Offset : ${details.offset.dx} * ${details.offset.dy}");
+                                  print(rect);
+                                }
+
+                                if (rect.contains(details.offset)) {
                                   editor.addDataElement(FormDataElement.create(
                                     title: e.name,
                                     formElement: e,
@@ -227,7 +241,7 @@ class FormEditorPage extends StatelessWidget {
                                     page: editor.page,
                                   ));
                                 } else {
-                                  print("Element Not Added.");
+                                  EasyLoading.showInfo('Element Not Added.');
                                 }
                               },
                             );
@@ -272,8 +286,10 @@ class FormEditorPage extends StatelessWidget {
                           const SizedBox(height: 10),
                           ElevatedButton.icon(
                             onPressed: () async {
-                              //TODO: SAVE FORM
+                              //todo: SAVE FORM
+                              await EasyLoading.show(status: "Loading...");
                               await editor.saveForm();
+                              await EasyLoading.showSuccess("Success...");
                             },
                             icon: const Icon(Icons.save),
                             label: const Text("Save Form"),

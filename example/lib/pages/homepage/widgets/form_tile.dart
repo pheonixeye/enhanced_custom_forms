@@ -88,11 +88,12 @@ class FormTile extends StatelessWidget {
                     ),
                     Text.rich(
                       TextSpan(
-                        text: "Form Elements :",
+                        text: "Form Elements : (${form.elements.length})",
                         children: [
+                          const TextSpan(text: " \n"),
                           ...form.elements.map((e) {
                             return TextSpan(
-                              text: '\n* ${e.title}',
+                              text: '* ${e.title}, ',
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.normal,
