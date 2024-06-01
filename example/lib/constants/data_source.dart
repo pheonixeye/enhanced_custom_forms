@@ -3,7 +3,8 @@
 enum DataSource {
   MongoDb,
   Hive,
-  Json;
+  Json,
+  Firebase;
 
   const DataSource();
 }

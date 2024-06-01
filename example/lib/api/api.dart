@@ -1,4 +1,5 @@
 import 'package:enhanced_custom_forms/enhanced_custom_forms.dart';
+import 'package:example/api/firebase_db.dart';
 import 'package:example/api/hive_db.dart';
 import 'package:example/api/json_db.dart';
 import 'package:example/api/mongo_db.dart';
@@ -24,6 +25,7 @@ abstract class API {
       DataSource.MongoDb => MongoDb(source),
       DataSource.Hive => HiveDb(source),
       DataSource.Json => JsonDb(source),
+      DataSource.Firebase => FirebaseDb(source),
     };
   }
 }

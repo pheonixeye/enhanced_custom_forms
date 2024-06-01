@@ -66,15 +66,48 @@ class FormTile extends StatelessWidget {
                       TextSpan(
                         text: "Layout : ",
                         children: [
-                          TextSpan(text: "\n${form.formLayout.toString()}")
+                          TextSpan(
+                            text: "\n* ${form.formLayout.toString()}",
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.normal,
+                              decoration: TextDecoration.none,
+                            ),
+                          )
                         ],
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                        ),
                       ),
                     ),
-                    ...form.elements.map((e) {
-                      return Text.rich(
-                        TextSpan(text: "\n${e.title}"),
-                      );
-                    }),
+                    const SizedBox(
+                      width: 20,
+                      height: 20,
+                    ),
+                    Text.rich(
+                      TextSpan(
+                        text: "Form Elements :",
+                        children: [
+                          ...form.elements.map((e) {
+                            return TextSpan(
+                              text: '\n* ${e.title}',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.normal,
+                                decoration: TextDecoration.none,
+                              ),
+                            );
+                          }),
+                        ],
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),

@@ -1,8 +1,9 @@
 import 'package:enhanced_custom_forms/enhanced_custom_forms.dart'
-    show Consumer, FormElement, FormDataElement;
+    show Consumer, FormElement, FormDataElement, FormLayout;
 import 'package:example/extensions/widget_on_form_element.dart';
 import 'package:example/providers/form_editor.dart';
 import 'package:example/widgets/central_loading.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_box_transform/flutter_box_transform.dart';
 
@@ -87,20 +88,32 @@ class FormEditorPage extends StatelessWidget {
                               return TransformableBox(
                                 rect: Offset(x.startX, x.startY) &
                                     Size(x.spanX, x.spanY),
+                                allowContentFlipping: false,
+                                allowFlippingWhileResizing: false,
                                 contentBuilder: (context, rect, flip) {
                                   return x.formElement.element;
                                 },
                                 onResizeUpdate: (result, event) {
-                                  editor.updateDataElement(x.copyWith(
-                                    spanX: x.spanX + result.rawSize.width,
-                                    spanY: x.spanY + result.rawSize.height,
-                                  ));
+                                  final update = x.copyWith(
+                                    spanX: result.rawSize.width,
+                                    spanY: result.rawSize.height,
+                                  );
+                                  if (kDebugMode) {
+                                    print(
+                                        'resize: X: (${update.spanX}) - Y: (${update.spanY})');
+                                  }
+                                  editor.updateDataElement(update);
                                 },
                                 onDragUpdate: (result, event) {
-                                  editor.updateDataElement(x.copyWith(
-                                    startX: x.startX + result.delta.dx,
-                                    startY: x.startY + result.delta.dy,
-                                  ));
+                                  final update = x.copyWith(
+                                    startX: result.position.dx,
+                                    startY: result.position.dy,
+                                  );
+                                  if (kDebugMode) {
+                                    print(
+                                        'drag: X: (${update.startX}) - (${update.startY})');
+                                  }
+                                  editor.updateDataElement(update);
                                 },
                               );
                             }),
@@ -112,82 +125,163 @@ class FormEditorPage extends StatelessWidget {
               ),
               Expanded(
                 flex: 1,
-                child: Card.outlined(
-                  elevation: 6,
-                  child: ListView(
-                    padding: const EdgeInsets.all(8.0),
-                    children: [
-                      const SizedBox(height: 10),
-                      Text(
-                        "${editor.form!.titleEn.toUpperCase()}\n(${editor.elements.keys.last}) Page(s)",
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Divider(),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final menuW = constraints.maxWidth;
+                    final menuH = constraints.maxHeight;
+                    return Card.outlined(
+                      elevation: 6,
+                      child: ListView(
+                        padding: const EdgeInsets.all(8.0),
                         children: [
-                          FloatingActionButton.small(
-                            heroTag: 'prev',
-                            onPressed: () {
-                              editor.prevPage();
-                            },
-                            child: const Icon(Icons.arrow_back),
+                          const SizedBox(height: 10),
+                          Text(
+                            "${editor.form!.titleEn.toUpperCase()}\n-----\n(${editor.elements.keys.last}) Page(s)",
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                          Text(editor.page.toString()),
-                          FloatingActionButton.small(
-                            heroTag: 'next',
+                          const Divider(),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              FloatingActionButton.small(
+                                heroTag: 'prev',
+                                onPressed: () {
+                                  editor.prevPage();
+                                },
+                                child: const Icon(Icons.arrow_back),
+                              ),
+                              CircleAvatar(
+                                child: Text(editor.page.toString()),
+                              ),
+                              FloatingActionButton.small(
+                                heroTag: 'next',
+                                onPressed: () {
+                                  editor.nextPage();
+                                },
+                                child: const Icon(Icons.arrow_forward),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          const Divider(),
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text('Form Layout'),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: DropdownButtonFormField<FormLayout>(
+                              isExpanded: true,
+                              alignment: Alignment.center,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                              ),
+                              items: FormLayout.values.map((e) {
+                                return DropdownMenuItem<FormLayout>(
+                                  alignment: Alignment.center,
+                                  value: e,
+                                  child: Text(e.toString()),
+                                );
+                              }).toList(),
+                              hint: const Text("Form Layout"),
+                              value: editor.form?.formLayout,
+                              onChanged: (value) async {
+                                if (value != null && editor.form != null) {
+                                  final layoutUpdatedForm =
+                                      editor.form?.copyWith(
+                                    formLayout: value,
+                                  );
+                                  if (layoutUpdatedForm != null) {
+                                    await editor
+                                        .updateFormLayout(layoutUpdatedForm);
+                                  }
+                                }
+                              },
+                            ),
+                          ),
+                          const Divider(),
+                          const SizedBox(height: 10),
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text("Form Elements"),
+                          ),
+                          ...FormElement.values.map((e) {
+                            return e.buildElement(
+                              onDragEnd: (details) {
+                                print("menuC : $menuW * $menuH");
+                                //TODO
+                                print(
+                                    "details Offset : ${details.offset.dx} * ${details.offset.dy}");
+
+                                if (details.offset.dx > menuW) {
+                                  editor.addDataElement(FormDataElement.create(
+                                    title: e.name,
+                                    formElement: e,
+                                    startX: details.offset.dx,
+                                    startY: details.offset.dy,
+                                    page: editor.page,
+                                  ));
+                                } else {
+                                  print("Element Not Added.");
+                                }
+                              },
+                            );
+                          }),
+                          const SizedBox(height: 10),
+                          const Divider(),
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text("Form Actions"),
+                          ),
+                          ElevatedButton.icon(
                             onPressed: () {
-                              editor.nextPage();
+                              editor.addNewPage();
                             },
-                            child: const Icon(Icons.arrow_forward),
+                            icon: const Icon(Icons.add),
+                            label: const Text("Add New Page"),
+                          ),
+                          const SizedBox(height: 10),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              editor.removePage();
+                            },
+                            icon: const Icon(Icons.delete),
+                            label: const Text("Remove Current Page"),
+                          ),
+                          const SizedBox(height: 10),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              editor.clearCurrentPage();
+                            },
+                            icon: const Icon(Icons.cleaning_services_rounded),
+                            label: const Text("Clear Current Page"),
+                          ),
+                          const SizedBox(height: 10),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              editor.clearForm();
+                            },
+                            icon: const Icon(Icons.clear_all),
+                            label: const Text("Clear Form"),
+                          ),
+                          const SizedBox(height: 10),
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              //TODO: SAVE FORM
+                              await editor.saveForm();
+                            },
+                            icon: const Icon(Icons.save),
+                            label: const Text("Save Form"),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
-                      const Divider(),
-                      ...FormElement.values.map((e) {
-                        return e.buildElement(
-                          onDragEnd: (details) {
-                            editor.addDataElement(FormDataElement.create(
-                              title: e.name,
-                              formElement: e,
-                              startX: details.offset.dx,
-                              startY: details.offset.dy,
-                            ));
-                          },
-                        );
-                      }),
-                      const SizedBox(height: 10),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          editor.addNewPage();
-                        },
-                        icon: const Icon(Icons.add),
-                        label: const Text("Add New Page"),
-                      ),
-                      const SizedBox(height: 10),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          editor.removePage();
-                        },
-                        icon: const Icon(Icons.delete),
-                        label: const Text("Remove Page"),
-                      ),
-                      const SizedBox(height: 10),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          editor.clearForm();
-                        },
-                        icon: const Icon(Icons.clear_all),
-                        label: const Text("Clear Form"),
-                      ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ),
             ],
