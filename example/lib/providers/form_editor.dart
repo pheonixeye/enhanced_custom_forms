@@ -66,6 +66,14 @@ class PxFormEditor extends ChangeNotifier {
     }
   }
 
+  void removeDataElement(FormDataElement element) {
+    _elements[page]?.remove(element);
+    notifyListeners();
+    if (kDebugMode) {
+      print("PxFormEditor().removeDataElement($element)");
+    }
+  }
+
   void addNewPage() {
     final length = _elements.length;
     _elements.putIfAbsent(length + 1, () => []);

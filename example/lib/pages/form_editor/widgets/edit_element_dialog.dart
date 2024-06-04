@@ -1,11 +1,61 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:convert';
+
 import 'package:enhanced_custom_forms/enhanced_custom_forms.dart'
-    show FormDataElement, FormElementDataOption, FormElement;
+    show
+        Equatable,
+        FormDataElement,
+        FormElement,
+        FormElementDataOption,
+        ReadContext;
+import 'package:example/providers/form_editor.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
+// ignore: unused_element
+class _FormDialogState extends Equatable {
+  final FormDataElement element;
+  final List<FormElementDataOption> options;
+
+  _FormDialogState({
+    required this.element,
+  }) : options = element.options;
+
+  @override
+  List<Object?> get props => [element, options];
+
+  void addOption(FormElementDataOption option) {
+    options.add(option);
+  }
+
+  void removeOption(FormElementDataOption option) {
+    options.remove(option);
+  }
+
+  void editOption(FormElementDataOption option, int index) {
+    options[index] = option;
+  }
+
+  _FormDialogState copyWith({
+    String? title,
+    String? description,
+    bool? required,
+  }) {
+    return _FormDialogState(
+      element: element.copyWith(
+        title: title ?? element.title,
+        description: description ?? element.description,
+        required: required ?? element.required,
+        options: options,
+      ),
+    );
+  }
+}
+
 class EditFormElementDialog extends StatefulWidget {
-  const EditFormElementDialog({super.key, required this.data});
-  final FormDataElement data;
+  const EditFormElementDialog({super.key, required this.formElement});
+  final FormDataElement formElement;
 
   @override
   State<EditFormElementDialog> createState() => _EditFormElementDialogState();
@@ -21,13 +71,11 @@ class _EditFormElementDialogState extends State<EditFormElementDialog> {
     return null;
   }
 
-  late bool isRequired;
-  late List<FormElementDataOption> _dataOptions;
+  late _FormDialogState _state;
 
   @override
   void initState() {
-    isRequired = widget.data.required;
-    _dataOptions = widget.data.options;
+    _state = _FormDialogState(element: widget.formElement);
     super.initState();
   }
 
@@ -36,7 +84,7 @@ class _EditFormElementDialogState extends State<EditFormElementDialog> {
     return AlertDialog(
       title: Row(
         children: [
-          Text("Edit Element (${widget.data.formElement.toString()})"),
+          Text("Edit Element (${widget.formElement.formElement.toString()})"),
           const Spacer(),
           FloatingActionButton.small(
             shape: RoundedRectangleBorder(
@@ -74,6 +122,16 @@ class _EditFormElementDialogState extends State<EditFormElementDialog> {
                     border: OutlineInputBorder(),
                   ),
                   validator: _validator,
+                  initialValue: _state.element.title,
+                  onChanged: (value) {
+                    if (value.isNotEmpty) {
+                      setState(() {
+                        _state = _state.copyWith(
+                          title: value,
+                        );
+                      });
+                    }
+                  },
                 ),
               ),
               const Divider(),
@@ -87,6 +145,16 @@ class _EditFormElementDialogState extends State<EditFormElementDialog> {
                     border: OutlineInputBorder(),
                   ),
                   // validator: _validator,
+                  initialValue: _state.element.description,
+                  onChanged: (value) {
+                    if (value.isNotEmpty) {
+                      setState(() {
+                        _state = _state.copyWith(
+                          description: value,
+                        );
+                      });
+                    }
+                  },
                 ),
               ),
               const Divider(),
@@ -95,11 +163,11 @@ class _EditFormElementDialogState extends State<EditFormElementDialog> {
                   padding: EdgeInsets.all(8.0),
                   child: Text("Required"),
                 ),
-                value: isRequired,
+                value: _state.element.required,
                 onChanged: (value) {
                   setState(() {
                     if (value != null) {
-                      isRequired = value;
+                      _state = _state.copyWith(required: value);
                     }
                   });
                 },
@@ -118,29 +186,30 @@ class _EditFormElementDialogState extends State<EditFormElementDialog> {
                   onPressed: () async {
                     //todo: ADD FORM DATA OPTION
 
-                    switch (widget.data.formElement) {
+                    switch (widget.formElement.formElement) {
                       case FormElement.dropdown:
                         setState(() {
-                          _dataOptions.add(FormElementDataOption.createEmpty());
+                          _state.addOption(FormElementDataOption.createEmpty());
+                          _state.copyWith();
                         });
                         break;
-                      case FormElement.radio:
                       case FormElement.image:
-                        if (_dataOptions.isEmpty) {
+                        if (_state.options.isEmpty) {
                           setState(() {
-                            _dataOptions
-                                .add(FormElementDataOption.createEmpty());
+                            _state
+                                .addOption(FormElementDataOption.createEmpty());
+                            _state.copyWith();
                           });
                         } else {
                           await EasyLoading.showInfo(
-                              "(${widget.data.formElement.toString().toUpperCase()}) Can Have Only One Option.");
+                              "(${widget.formElement.formElement.toString().toUpperCase()}) Can Have Only One Option.");
                         }
                         break;
                       case FormElement.textfield:
                       case FormElement.checkbox:
                       case FormElement.text:
                         await EasyLoading.showInfo(
-                            "(${widget.data.formElement.toString().toUpperCase()}) Has No Data Options.");
+                            "(${widget.formElement.formElement.toString().toUpperCase()}) Has No Data Options.");
                         break;
                     }
                   },
@@ -148,24 +217,26 @@ class _EditFormElementDialogState extends State<EditFormElementDialog> {
                 ),
               ),
               const Divider(),
-              ..._dataOptions.map((e) {
-                return switch (widget.data.formElement) {
+              ..._state.options.map((e) {
+                final index = _state.options.indexOf(e);
+                return switch (widget.formElement.formElement) {
                   FormElement.textfield ||
                   FormElement.checkbox ||
                   FormElement.text =>
                     const SizedBox(),
-                  FormElement.radio || FormElement.dropdown => Column(
+                  FormElement.dropdown => Column(
                       children: [
                         ListTile(
                           title: Padding(
                             padding: const EdgeInsets.all(8),
                             child: Text(
-                                "** Option ${_dataOptions.indexOf(e) + 1}"),
+                                "** Option ${_state.options.indexOf(e) + 1}"),
                           ),
                           trailing: IconButton.outlined(
                             onPressed: () {
                               setState(() {
-                                _dataOptions.remove(e);
+                                _state.removeOption(e);
+                                _state.copyWith();
                               });
                             },
                             icon: const Icon(Icons.delete_forever),
@@ -174,38 +245,76 @@ class _EditFormElementDialogState extends State<EditFormElementDialog> {
                         ListTile(
                           title: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text("${widget.data.formElement} Title"),
+                            child:
+                                Text("${widget.formElement.formElement} Title"),
                           ),
                           subtitle: TextFormField(
                             decoration: const InputDecoration(
                               border: OutlineInputBorder(),
                             ),
                             validator: _validator,
+                            initialValue: e.title,
+                            onChanged: (value) {
+                              if (value.isNotEmpty) {
+                                final eNew = e.copyWith(
+                                  title: value,
+                                );
+                                setState(() {
+                                  _state.editOption(eNew, index);
+                                  _state.copyWith();
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                        ListTile(
+                          title: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                                "${widget.formElement.formElement} Description"),
+                          ),
+                          subtitle: TextFormField(
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                            ),
+                            initialValue: e.description,
+                            // validator: _validator,
+                            onChanged: (value) {
+                              if (value.isNotEmpty) {
+                                final eNew = e.copyWith(
+                                  description: value,
+                                );
+                                setState(() {
+                                  _state.editOption(eNew, index);
+                                  _state.copyWith();
+                                });
+                              }
+                            },
                           ),
                         ),
                         ListTile(
                           title: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child:
-                                Text("${widget.data.formElement} Description"),
+                                Text("${widget.formElement.formElement} Value"),
                           ),
                           subtitle: TextFormField(
                             decoration: const InputDecoration(
                               border: OutlineInputBorder(),
                             ),
-                            // validator: _validator,
-                          ),
-                        ),
-                        ListTile(
-                          title: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text("${widget.data.formElement} Value"),
-                          ),
-                          subtitle: TextFormField(
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                            ),
+                            initialValue: e.value,
                             validator: _validator,
+                            onChanged: (value) {
+                              if (value.isNotEmpty) {
+                                final eNew = e.copyWith(
+                                  value: value,
+                                );
+                                setState(() {
+                                  _state.editOption(eNew, index);
+                                  _state.copyWith();
+                                });
+                              }
+                            },
                           ),
                         ),
                         const Divider(),
@@ -216,18 +325,49 @@ class _EditFormElementDialogState extends State<EditFormElementDialog> {
                         padding: EdgeInsets.all(8.0),
                         child: Text("Pick Image"),
                       ),
-                      subtitle: const SizedBox(
-                        width: 200,
-                        height: 200,
-                        //TODO: show picked image
+                      subtitle: Container(
+                        //todo: show picked image
+                        width: 100,
+                        height: 100,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          boxShadow: const [BoxShadow()],
+                          border: Border.all(),
+                        ),
+                        child: e.value == ''
+                            ? const Text("No Image Selected")
+                            : Image.memory(base64Decode(e.value)),
                       ),
                       trailing: FloatingActionButton.small(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(50),
                         ),
                         heroTag: 'add-img-btn',
-                        onPressed: () {
-                          //TODO: pick and store image
+                        onPressed: () async {
+                          final result = await FilePicker.platform.pickFiles(
+                            dialogTitle: "Select Image Path",
+                            allowMultiple: false,
+                            allowedExtensions: ['jpg', 'png', 'jpeg'],
+                            type: FileType.image,
+                            withData: true,
+                          );
+                          if (result != null) {
+                            //todo: pick and store image
+                            final imageBytes = result.files.first.bytes;
+                            if (imageBytes != null) {
+                              final imageBase = base64Encode(imageBytes);
+                              final eNew = e.copyWith(
+                                title: 'image',
+                                description: 'image form element',
+                                value: imageBase,
+                              );
+                              setState(() {
+                                _state.editOption(eNew, index);
+                                _state.copyWith();
+                              });
+                            }
+                          }
                         },
                         child: const Icon(Icons.image),
                       ),
@@ -243,7 +383,10 @@ class _EditFormElementDialogState extends State<EditFormElementDialog> {
           onPressed: () {
             if (formKey.currentState != null &&
                 formKey.currentState!.validate()) {
-              //TODO: save changes to formDataElement
+              //todo: save changes to formDataElement
+              final editor = context.read<PxFormEditor>();
+              editor.updateDataElement(_state.element);
+              Navigator.pop(context);
             }
           },
           icon: const Icon(Icons.save),

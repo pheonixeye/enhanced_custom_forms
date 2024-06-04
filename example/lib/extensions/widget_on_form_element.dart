@@ -31,18 +31,6 @@ extension WidgetOnFormElement on FormElement {
               ),
             ),
           ),
-        FormElement.radio => Card.outlined(
-            elevation: 6,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: RadioListTile(
-                title: Text(toString()),
-                onChanged: null,
-                groupValue: null,
-                value: true,
-              ),
-            ),
-          ),
         FormElement.dropdown => Card.outlined(
             elevation: 6,
             child: Padding(

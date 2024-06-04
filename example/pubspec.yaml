@@ -39,6 +39,8 @@ dependencies:
   enhanced_custom_forms:
     path: ../
   flutter_easyloading: ^3.0.5
+  file_picker:
+
 
 dev_dependencies:
   flutter_test:
