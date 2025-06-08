@@ -1,9 +1,9 @@
-import 'package:enhanced_custom_forms/enhanced_custom_forms.dart'
-    show FormLayout, ProClinicForm, ReadContext;
 import 'package:example/providers/data_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:proclinic_models/proclinic_models.dart';
+import 'package:provider/provider.dart';
 
 class CreateNewFormDialog extends StatefulWidget {
   const CreateNewFormDialog({super.key});

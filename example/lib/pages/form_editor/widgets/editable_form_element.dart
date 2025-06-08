@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:enhanced_custom_forms/enhanced_custom_forms.dart'
-    show FormDataElement, FormElement, ReadContext;
 import 'package:example/pages/form_editor/widgets/edit_element_dialog.dart';
 import 'package:example/providers/form_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:proclinic_models/proclinic_models.dart';
+import 'package:provider/provider.dart';
 
 class EditableFormElement extends StatefulWidget {
   const EditableFormElement({super.key, required this.data});

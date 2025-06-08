@@ -1,5 +1,3 @@
-import 'package:enhanced_custom_forms/enhanced_custom_forms.dart'
-    show Consumer, FormElement, FormDataElement, FormLayout;
 import 'package:example/extensions/widget_on_form_element.dart';
 import 'package:example/pages/form_editor/widgets/editable_form_element.dart';
 import 'package:example/providers/form_editor.dart';
@@ -8,6 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_box_transform/flutter_box_transform.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:proclinic_models/proclinic_models.dart';
+import 'package:provider/provider.dart';
 
 class FormEditorPage extends StatelessWidget {
   const FormEditorPage({super.key});

@@ -1,17 +1,13 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:enhanced_custom_forms/enhanced_custom_forms.dart'
-    show
-        Equatable,
-        FormDataElement,
-        FormElement,
-        FormElementDataOption,
-        ReadContext;
+import 'package:equatable/equatable.dart';
 import 'package:example/providers/form_editor.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:proclinic_models/proclinic_models.dart';
+import 'package:provider/provider.dart';
 
 // ignore: unused_element
 class _FormDialogState extends Equatable {

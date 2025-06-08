@@ -1,11 +1,13 @@
-import 'package:enhanced_custom_forms/enhanced_custom_forms.dart';
 import 'package:example/api/api.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mongo_dart/mongo_dart.dart';
+import 'package:proclinic_models/proclinic_models.dart';
 
 class MongoDb extends API {
   MongoDb(super.source);
 
-  static final Db mongo = Db('mongodb://127.0.0.1:27017/proclinic');
+  //TODO: change at deployment
+  static final Db mongo = Db('mongodb://192.168.1.88:27017/proclinic');
   final DbCollection forms = mongo.collection('forms');
 
   @override

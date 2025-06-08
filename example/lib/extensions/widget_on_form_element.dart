@@ -1,6 +1,5 @@
-import 'package:enhanced_custom_forms/enhanced_custom_forms.dart'
-    show FormElement;
 import 'package:flutter/material.dart';
+import 'package:proclinic_models/proclinic_models.dart';
 
 extension WidgetOnFormElement on FormElement {
   Widget get selectionElement => switch (this) {
